@@ -1,7 +1,12 @@
 const { querydb } = require('../common/db-query')
 
-function queryGoodsList(typeId) {
-  const sql = `select * from goods_info where goods_class = ${typeId}`;
+function queryGoodsList(typeId,goodsName) {
+  let sql = ''
+  if(goodsName){
+    sql = `select * from goods_info where goods_class = ${typeId} and goods_name like '%${goodsName}%'`;
+  }else {
+    sql = `select * from goods_info where goods_class = ${typeId}`
+  }
   return querydb(sql)
 }
 

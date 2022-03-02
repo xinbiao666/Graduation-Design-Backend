@@ -27,8 +27,8 @@ goods.get('/queryTabList',async (req, res)=>{
 
 goods.get('/queryGoodsList',async (req,res) => {
   try{
-    const typeId = req.query.typeId
-    const goodsList = await goodsModule.queryGoodsList(typeId)
+    const { typeId, goodsName } = req.query
+    const goodsList = await goodsModule.queryGoodsList(typeId, goodsName)
     res.sendResult({ goodsList }, 200, '获取成功');
   } catch(e){
     console.log(e)
