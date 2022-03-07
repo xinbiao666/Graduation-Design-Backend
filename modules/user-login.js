@@ -42,7 +42,9 @@ async function loginUser(param){
     insertUserWallet({ user_id: info.insertId})
     return queryUser(param)
   }else {
-    return res
+    const updateSql = `update user_info set session_key = '${param.session_key}', nick_name = '${param.nickName}', avatar_url = '${param.avatarUrl}', gender = '${param.gender}' where user_id = ${res[0].user_id}`
+    await querydb(updateSql)
+    return queryUser(param)
   }
 }
 

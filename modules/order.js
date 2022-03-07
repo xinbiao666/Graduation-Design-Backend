@@ -61,6 +61,18 @@ async function generateAloneGoodsOrder(param) {
   return order;
 }
 
+// 清除购物车中的商品
+async function clearShoppingCartGoods(param){
+  try{
+    for(let item of param.orderGoodsList){
+      const sql = `delete from user_shopping_cart where goods_id = '${item.goods_id}' and user_id = '${param.user_id}'`
+      await querydb(sql)
+    }
+  }catch(e) {
+    console.log(e)
+  }
+}
+
 // 生成订单
 async function generateOrder(param) {
   try {
@@ -71,13 +83,10 @@ async function generateOrder(param) {
     const insertOrderInfoSql = `insert into order_info (order_id,order_confirm_time,payment_type,goods_total_price,total_real_cost,order_status,user_id) values ('${orderId}','${confirmTime}','${paymentType}','${param.totalPrice}','${param.totalPrice}','${orderStatus}','${param.user_id}')`;
     await querydb(insertOrderInfoSql);
     param.orderGoodsList.forEach(async (item) => {
-      const insertOrderGoodsSql = `insert into order_goods (order_id,goods_id,goods_num,goods_name,goods_price,goods_cover) values ('${orderId}','${
-        item.goods_id
-      }','${item.num || param.num}','${item.goods_name}','${
-        item.goods_price
-      }','${item.goods_cover}')`;
+      const insertOrderGoodsSql = `insert into order_goods (order_id,goods_id,goods_num,goods_name,goods_price,goods_cover) values ('${orderId}','${item.goods_id}','${item.num || param.num}','${item.goods_name}','${item.goods_price}','${item.goods_cover}')`;
       await querydb(insertOrderGoodsSql);
     });
+    clearShoppingCartGoods({orderGoodsList: param.orderGoodsList,user_id: param.user_id});
     const queryOrderSql = `select * from order_info where order_id = '${orderId}'`;
     const queryOrderGoodsSql = `select * from order_goods where order_id = '${orderId}'`;
     const orderInfo = await querydb(queryOrderSql);
@@ -159,10 +168,19 @@ async function queryRefundOrderDetail(param) {
   return refundOrderDetail
 }
 
+async function getCurrentPicker(param){
+  const queryCurrentPickerIdSql = `select current_picker_id from user_info where user_id = '${param.user_id}'`
+  const [data] = await querydb(queryCurrentPickerIdSql)
+  const queryCurrentPickerInfoSql = `select * from consignee where consignee_id = '${data.current_picker_id}'`
+  const [pickerInfo] = await querydb(queryCurrentPickerInfoSql)
+  return pickerInfo
+}
+
 module.exports = {
   generateShoppingCartOrder,
   generateAloneGoodsOrder,
   queryOrderList,
   queryOrderDetail,
-  queryRefundOrderDetail
+  queryRefundOrderDetail,
+  getCurrentPicker
 };

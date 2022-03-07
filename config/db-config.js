@@ -1,5 +1,5 @@
 const db_config = {
-  host: '47.106.202.197',
+  host: '82.157.235.2',
   user: 'root',
   password: '199924',
   port: '3306',

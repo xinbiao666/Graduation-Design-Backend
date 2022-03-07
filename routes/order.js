@@ -66,4 +66,16 @@ order.get('/queryRefundDetail', async (req, res) => {
   }
 })
 
+// 查询当前用户自提人信息
+order.get('/queryCurrentPicker',async (req, res) => {
+  try{
+    const user_id = req.query.user_id
+    const pickerInfo = await orderModule.getCurrentPicker({ user_id })
+    res.sendResult({ pickerInfo }, 200, '查询成功')
+  }catch(e) {
+    console.log(e)
+    res.sendResult({}, 500, '查询失败')
+  }
+})
+
 module.exports = order;
